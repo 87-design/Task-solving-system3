@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(python3 -)",
-      "mcp__visualize__show_widget"
+      "mcp__visualize__show_widget",
+      "Bash(ls ~/Desktop/アプリv4/)",
+      "Bash(python3 gen-icons.py)"
     ]
   }
 }

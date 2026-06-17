@@ -10,7 +10,7 @@ os.makedirs('icons', exist_ok=True)
 def draw_icon(size):
     img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
-    r = int(size * 0.22)
+    r = int(size * 0.30)
 
     # 背景グラデーション（薄いミントグリーン）
     # Pillowに線形グラデはないので縦方向に1行ずつ描く
@@ -37,12 +37,12 @@ def draw_icon(size):
         (size * 0.42, size * 0.70),
         (size * 0.78, size * 0.30),
     ]
-    yellow = (255, 213, 50, 255)  # #FFD532
+    check_color = (55, 75, 80, 210)
 
-    # アンチエイリアス的に太さを出すために少しずつずらして重ね描き
-    for offset in [(-1, -1), (1, -1), (-1, 1), (1, 1), (0, 0)]:
-        shifted = [(x + offset[0], y + offset[1]) for x, y in pts]
-        draw.line(shifted, fill=yellow, width=lw, joint='curve')
+    # 太めの線を重ねて角を丸く見せる
+    for offset in [(-1,-1),(1,-1),(-1,1),(1,1),(0,-1),(0,1),(-1,0),(1,0),(0,0)]:
+        shifted = [(x+offset[0], y+offset[1]) for x,y in pts]
+        draw.line(shifted, fill=check_color, width=lw)
 
     return img
 

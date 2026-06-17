@@ -55,17 +55,15 @@ body{
 #shbtn:active{transform:translateX(-50%) scale(.96);}
 @keyframes bp{from{opacity:0;transform:translateX(-50%) scale(.7);}to{opacity:1;transform:translateX(-50%) scale(1);}}
 
-/* ── MUSIC BUTTON ── */
-#musicBtn{
-  position:fixed;top:calc(14px + env(safe-area-inset-top));right:16px;z-index:40;
-  width:36px;height:36px;border-radius:50%;border:none;
-  background:rgba(255,255,255,.75);backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
+.top-nav-music{
+  width:34px;height:34px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.72);
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   font-size:15px;box-shadow:var(--shadow);
-  transition:opacity .2s;
+  transition:opacity .2s,transform .15s;flex-shrink:0;
 }
-#musicBtn.muted{opacity:.35;}
+.top-nav-music:active{transform:scale(.9);}
+.top-nav-music.muted{opacity:.3;}
 
 /* ── RESET BUTTON ── */
 #resetBtn{
@@ -107,7 +105,7 @@ body{
 .cg-reset:active{transform:scale(.96);}
 
 /* ── MINDSET ── */
-.mindset{position:relative;z-index:5;width:100%;padding:16px 16px 0;overflow:hidden;box-sizing:border-box;}
+.mindset{position:relative;z-index:5;width:100%;padding:calc(56px + env(safe-area-inset-top)) 16px 0;overflow:hidden;box-sizing:border-box;}
 .mindset-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer;}
 .mindset-title{
   font-size:11px;font-weight:600;color:var(--tx3);
@@ -291,7 +289,7 @@ body{
 .screen{
   position:fixed;inset:0;z-index:50;overflow-y:auto;
   background:var(--bg);
-  padding-top:env(safe-area-inset-top);
+  padding-top:calc(50px + env(safe-area-inset-top));
   padding-bottom:env(safe-area-inset-bottom);
 }
 #screen-task{position:relative;z-index:1;}
@@ -323,12 +321,15 @@ body{
 }
 .cal-cell:active{background:rgba(10,143,163,.12);border-color:var(--ac);}
 .cal-cell.cal-empty{background:transparent;border-color:transparent;cursor:default;pointer-events:none;}
-.cal-cell.cal-today{background:var(--ac);border-color:var(--ac);}
-.cal-cell.cal-today .cal-num{color:#fff;font-weight:700;}
-.cal-cell.cal-today .cal-ev-text{color:rgba(255,255,255,.9);}
-.cal-num{font-size:13px;font-weight:600;color:var(--tx);line-height:1.2;}
+.cal-cell.cal-today{background:#fff;border-color:var(--ac);border-width:2px;}
+.cal-cell.cal-today .cal-num{
+  background:var(--ac);color:#fff;font-weight:700;
+  border-radius:50%;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;margin:0 auto;
+}
+.cal-num{font-size:13px;font-weight:600;color:var(--tx);line-height:1.2;text-align:center;}
 .cal-cell.cal-sun .cal-num{color:#C0392B;}
-.cal-cell.cal-today .cal-num{color:#fff;}
+.cal-cell.cal-today.cal-sun .cal-num{color:#fff;}
 .cal-dots{display:flex;gap:2px;margin-top:3px;justify-content:center;flex-wrap:wrap;}
 .cal-dot{width:5px;height:5px;border-radius:50%;}
 .cal-dot-task{background:#E8841A;}
@@ -428,9 +429,39 @@ body{
 /* ── TASK NAV PILLS ── */
 .task-nav-pills{display:flex;justify-content:center;gap:10px;padding:8px 0 4px;}
 
+/* ── TOP NAV ── */
+#top-nav{
+  position:fixed;top:0;left:0;right:0;z-index:55;
+  padding-top:env(safe-area-inset-top);
+  background:rgba(240,250,251,.92);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(10,143,163,.13);
+  display:flex;justify-content:center;align-items:center;gap:6px;
+  padding-bottom:8px;
+}
+.top-nav-btn{
+  padding:7px 22px;border-radius:50px;border:none;
+  background:transparent;color:var(--tx3);
+  font-size:13px;font-weight:600;letter-spacing:-.1px;
+  cursor:pointer;transition:all .2s cubic-bezier(.22,.68,0,1.2);
+  font-family:-apple-system,'Helvetica Neue',sans-serif;
+}
+.top-nav-btn.active{
+  background:var(--ac);color:#fff;
+  box-shadow:0 2px 10px rgba(10,143,163,.32);
+  transform:scale(1.04);
+}
+
 </style>
 </head>
 <body>
+
+<!-- TOP NAV -->
+<div id="top-nav">
+  <button id="nav-cal" class="top-nav-btn active" onclick="goScreen('calendar')">カレンダー</button>
+  <button id="nav-task" class="top-nav-btn" onclick="goScreen('task')">タスク管理</button>
+  <button id="musicBtn" onclick="toggleMusic()" class="top-nav-music">🎵</button>
+</div>
 
 <!-- CALENDAR SCREEN -->
 <div id="screen-calendar" class="screen" style="display:none">
@@ -533,7 +564,6 @@ body{
 <canvas id="sk"></canvas>
 <div id="sl"></div>
 <button id="shbtn" onclick="shatterIce()">❄️ 割る！</button>
-<button id="musicBtn" onclick="toggleMusic()" title="BGM">🎵</button>
 <button id="resetBtn" onclick="confirmReset()">🔄 リセット</button>
 
 <!-- CONGRATULATIONS -->
@@ -1179,13 +1209,14 @@ function goScreen(name){
   currentScreen=name;
   document.getElementById('screen-calendar').style.display=name==='calendar'?'block':'none';
   document.getElementById('screen-day').style.display=name==='day'?'block':'none';
-  // task screen elements
   const onTask=name==='task';
   document.querySelector('.mindset').style.display=onTask?'':'none';
   document.querySelector('.app').style.display=onTask?'':'none';
   document.getElementById('wl').style.display=onTask?'':'none';
-  document.getElementById('musicBtn').style.display=onTask?'':'none';
   document.getElementById('resetBtn').style.display=onTask?'':'none';
+  // タブハイライト
+  document.getElementById('nav-cal').classList.toggle('active', name==='calendar'||name==='day');
+  document.getElementById('nav-task').classList.toggle('active', name==='task');
   if(name==='calendar'){renderCal();renderMG();}
   if(name==='day'){renderDay();}
   if(name==='task'){updDateUI();ra();updW();}
