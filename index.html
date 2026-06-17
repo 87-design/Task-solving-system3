@@ -106,20 +106,21 @@ body{
 .cg-reset:active{transform:scale(.96);}
 
 /* ── MINDSET ── */
-.mindset{position:relative;z-index:5;width:100%;padding:16px 16px 0;}
+.mindset{position:relative;z-index:5;width:100%;padding:16px 16px 0;overflow:hidden;box-sizing:border-box;}
 .mindset-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer;}
 .mindset-title{
   font-size:11px;font-weight:600;color:var(--tx3);
   letter-spacing:.8px;text-transform:uppercase;
 }
 .mindset-toggle{font-size:11px;color:var(--tx3);font-weight:500;}
-.mindset-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.mindset-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;width:100%;}
 .mindset-card{
   display:flex;align-items:flex-start;gap:8px;
   background:rgba(255,255,255,.7);
   border:1px solid rgba(159,214,221,.5);
   border-radius:var(--radius-sm);padding:10px 11px;
   box-shadow:0 1px 6px rgba(10,143,163,.06);
+  min-width:0;overflow:hidden;
 }
 .mindset-num{
   font-size:10px;font-weight:700;color:var(--ac2);
@@ -265,20 +266,6 @@ body{
 .sa input::placeholder{color:var(--tx3);}
 .en{font-size:13px;color:var(--tx3);padding:12px 0 4px;text-align:center;}
 
-/* 完了ゾーン */
-.dz{margin-top:28px;padding-bottom:60px;}
-.dzh{text-align:center;margin-bottom:18px;}
-.dzt{font-size:20px;font-weight:700;color:var(--dn);letter-spacing:-.3px;}
-.dzs{font-size:13px;color:var(--tx3);margin-top:5px;font-weight:400;}
-.dp{display:flex;flex-direction:column;gap:10px;}
-.dc{
-  border-radius:var(--radius-sm);padding:14px 16px;
-  display:flex;align-items:center;gap:12px;
-  animation:fi .45s cubic-bezier(.22,.68,0,1.2);
-  box-shadow:0 1px 8px rgba(10,143,163,.08);
-}
-@keyframes fi{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
-.dct{flex:1;font-weight:500;font-size:14px;text-decoration:line-through;opacity:.65;color:var(--tx2);}
 </style>
 </head>
 <body>
@@ -319,10 +306,6 @@ body{
 <div class="app">
   <div class="hd"><div><h1>今日のタスク</h1><div class="dl" id="dl"></div></div></div>
   <div id="bc"></div>
-  <div class="dz" id="dz" style="display:none">
-    <div class="dzh"><div class="dzt" id="dzt">✅ 完了済み</div><div class="dzs" id="dzs"></div></div>
-    <div class="dp" id="dp"></div>
-  </div>
 </div>
 
 <script>
@@ -840,14 +823,7 @@ function rb(){
   });
 }
 
-function rd(){
-  const dz=document.getElementById('dz'),dp=document.getElementById('dp');
-  if(!done.length){dz.style.display='none';return;}
-  dz.style.display='block';const t=tot();
-  document.getElementById('dzt').textContent=`✅ 完了済み ${done.length} / ${t}`;
-  document.getElementById('dzs').textContent=`今日の達成率 ${Math.round(done.length/t*100)}%`;
-  dp.innerHTML=done.map(t=>`<div class="dc" style="background:${Q[t.q].c};"><span style="font-size:22px;">❄️</span><span class="dct">${t.text}</span><span class="bg ${Q[t.q].b}">${Q[t.q].l}</span></div>`).join('');
-}
+function rd(){}
 
 function tgO(bk,id){const t=ft(bk,id);if(t)t.open=!t.open;save();rb();}
 function tgT(bk,id){const t=ft(bk,id);if(!t)return;if(t.subs&&t.subs.length){const a=t.subs.every(s=>s.done);t.subs.forEach(s=>s.done=!a);t.done=!a;}else t.done=!t.done;save();ra();}
