@@ -297,9 +297,7 @@ body{
 
 /* ── CALENDAR ── */
 .cal-scr-inner{
-  padding:16px 16px calc(16px + env(safe-area-inset-bottom));
-  display:flex;flex-direction:column;
-  min-height:calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  padding:16px 16px calc(32px + env(safe-area-inset-bottom));
 }
 .cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-top:8px;}
 .cal-top h2{font-size:22px;font-weight:700;color:var(--tx);letter-spacing:-.4px;}
@@ -314,7 +312,7 @@ body{
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px;}
 .cal-wd{font-size:11px;font-weight:700;color:var(--tx3);text-align:center;padding:4px 0;}
 .cal-wd.sun{color:#C0392B;}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px 3px;flex:1;grid-auto-rows:1fr;align-content:stretch;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px 3px;grid-auto-rows:clamp(48px,9.5vw,64px);}
 .cal-cell{
   border-radius:9px;padding:5px 3px 4px;
   background:#fff;cursor:pointer;
