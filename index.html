@@ -378,13 +378,14 @@ document.getElementById('dl').textContent=(()=>{const n=new Date();return n.getF
 function gc(){
   if(!actx)try{actx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}
   if(actx.state==='suspended')actx.resume();
-  if(!reverbNode)reverbNode=mkReverb(actx,3.5,1.8);
-  if(!masterReverb){masterReverb=actx.createGain();masterReverb.gain.value=1;masterReverb.connect(actx.destination);}
-  if(!bgPlaying)startBgMusic();
   return actx;
 }
-document.addEventListener('touchstart',()=>gc(),{once:true});
-document.addEventListener('click',()=>gc(),{once:true});
+function initAudio(){
+  const c=gc();if(!c||bgPlaying)return;
+  startBgMusic();
+}
+document.addEventListener('touchstart',initAudio,{once:true});
+document.addEventListener('click',initAudio,{once:true});
 
 // ── Reverb ────────────────────────────────────
 function mkReverb(c,dur=3,decay=2){
@@ -403,7 +404,8 @@ function mkEcho(c,dt=0.28,fb=0.38){
 
 // ── Healing BGM ───────────────────────────────
 function startBgMusic(){
-  const c=gc();if(!c||bgPlaying)return;bgPlaying=true;
+  bgPlaying=true;
+  const c=gc();if(!c)return;
   const rv=mkReverb(c,5,1.2);
   const master=c.createGain();master.gain.value=musicMuted?0:0.28;
   rv.connect(master);master.connect(c.destination);
@@ -819,7 +821,7 @@ function rb(){
         const ph=hs?`<div class="pb"><div class="pbi" style="width:${p}%"></div></div><div class="pc">${p}%</div>`:'';
         const hint=rdy&&!cv?`<div class="ch">👆 タップでひび割れ開始</div>`:rdy&&cv<4?`<div class="ch">あと${4-cv}回で砕ける！</div>`:'';
         const csv=cv?`<svg style="position:absolute;inset:0;pointer-events:none;z-index:2;" width="100%" height="100%" viewBox="0 0 380 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">${clines(iv)}</svg>`:'';
-        return`<div class="tr ${cv?'c'+cv:''}" data-block="${b.k}" data-id="${t.id}" onclick="tap('${b.k}',${t.id})">${csv}<div class="tm"><div class="dh" onclick="event.stopPropagation()"><i class="ti ti-grip-vertical" style="font-size:15px;"></i></div><div class="ck ${t.done?'done':''}" onclick="event.stopPropagation();tgT('${b.k}',${t.id})"></div><div class="tbody" onclick="tap('${b.k}',${t.id})"><span class="tn ${(t.done||(hs&&t.subs.every(s=>s.done)))?'done':''}">${t.text}</span><br><span class="bg ${Q[t.q].b}">${Q[t.q].l}</span>${ph}${hint}</div><div style="display:flex;align-items:center;gap:4px;flex-shrink:0;z-index:3;position:relative;"><i class="ti ti-${t.open?'chevron-up':'chevron-down'}" style="font-size:14px;color:var(--tx3);cursor:pointer;padding:5px;" onclick="event.stopPropagation();tgO('${b.k}',${t.id})"></i><i class="ti ti-trash" style="font-size:14px;color:var(--tx3);cursor:pointer;padding:5px;" onclick="event.stopPropagation();dlT('${b.k}',${t.id})"></i></div></div>${sp2}</div>`;
+        return`<div class="tr ${cv?'c'+cv:''}" data-block="${b.k}" data-id="${t.id}" onclick="tap('${b.k}',${t.id})">${csv}<div class="tm"><div class="dh" onclick="event.stopPropagation()"><i class="ti ti-grip-vertical" style="font-size:15px;"></i></div><div class="ck ${t.done?'done':''}" onclick="event.stopPropagation();tgT('${b.k}',${t.id})"></div><div class="tbody" onclick="event.stopPropagation();tap('${b.k}',${t.id})"><span class="tn ${(t.done||(hs&&t.subs.every(s=>s.done)))?'done':''}">${t.text}</span><br><span class="bg ${Q[t.q].b}">${Q[t.q].l}</span>${ph}${hint}</div><div style="display:flex;align-items:center;gap:4px;flex-shrink:0;z-index:3;position:relative;"><i class="ti ti-${t.open?'chevron-up':'chevron-down'}" style="font-size:14px;color:var(--tx3);cursor:pointer;padding:5px;" onclick="event.stopPropagation();tgO('${b.k}',${t.id})"></i><i class="ti ti-trash" style="font-size:14px;color:var(--tx3);cursor:pointer;padding:5px;" onclick="event.stopPropagation();dlT('${b.k}',${t.id})"></i></div></div>${sp2}</div>`;
       }).join('');
       body=`<div class="tbb"><div id="list-${b.k}">${rows}</div><div class="ba"><input type="text" id="inp-${b.k}" placeholder="${b.n}のタスクを追加..."/><select id="sel-${b.k}"><option value="0">🔴 重要・急ぎ</option><option value="1">🟡 重要・後で</option><option value="2">🔵 急ぎ・軽め</option><option value="3">⚪ いつか</option></select><button class="mb" onclick="addT('${b.k}')"><i class="ti ti-plus"></i></button></div></div>`;
     }
