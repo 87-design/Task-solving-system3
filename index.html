@@ -396,7 +396,7 @@ body{
   80%{opacity:1;}
   100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(20deg) scale(.7);}
 }
-.money-emoji{position:fixed;font-size:210px;pointer-events:none;z-index:9999;animation:money-fly var(--dur) ease-out forwards;}
+.money-emoji{position:fixed;font-size:52px;pointer-events:none;z-index:9999;animation:money-fly var(--dur) ease-out forwards;}
 .mg-subs{padding:4px 0 2px 36px;}
 .mg-sub-row{display:flex;align-items:center;gap:6px;padding:4px 0;}
 .mg-sub-dot{width:6px;height:6px;border-radius:50%;background:var(--ac);flex-shrink:0;}
@@ -1404,16 +1404,16 @@ function launchMoney(){
       const el=document.createElement('span');
       el.className='money-emoji';
       el.textContent='💸';
-      const sx=Math.random()*window.innerWidth*.08;
+      const sx=-80-Math.random()*60;
       const sy=window.innerHeight*(.56+Math.random()*.28);
       const dist=window.innerHeight*(.9+Math.random()*.5);
       const angle=(30+(Math.random()*16-8))*Math.PI/180;
       const dx=dist*Math.cos(angle);
       const dy=-dist*Math.sin(angle);
-      const dur=(.85+Math.random()*.75).toFixed(2);
+      const dur=(3.8+Math.random()*.4).toFixed(2);
       el.style.cssText=`left:${sx}px;top:${sy}px;--dx:${dx}px;--dy:${dy}px;--dur:${dur}s;`;
       document.body.appendChild(el);
-      setTimeout(()=>el.remove(),2200);
+      setTimeout(()=>el.remove(),4500);
     },k*70);
   }
 }
