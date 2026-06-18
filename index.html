@@ -396,7 +396,7 @@ body{
   80%{opacity:1;}
   100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(20deg) scale(.7);}
 }
-.money-emoji{position:fixed;font-size:30px;pointer-events:none;z-index:9999;animation:money-fly var(--dur) ease-out forwards;}
+.money-emoji{position:fixed;font-size:210px;pointer-events:none;z-index:9999;animation:money-fly var(--dur) ease-out forwards;}
 .mg-subs{padding:4px 0 2px 36px;}
 .mg-sub-row{display:flex;align-items:center;gap:6px;padding:4px 0;}
 .mg-sub-dot{width:6px;height:6px;border-radius:50%;background:var(--ac);flex-shrink:0;}
@@ -1399,13 +1399,13 @@ function toggleMGDone(i){
   if(data.filter(d=>d.done).length>=3)launchMoney();
 }
 function launchMoney(){
-  for(let k=0;k<18;k++){
+  for(let k=0;k<126;k++){
     setTimeout(()=>{
       const el=document.createElement('span');
       el.className='money-emoji';
       el.textContent='💸';
-      const sx=Math.random()*window.innerWidth*.30;
-      const sy=window.innerHeight*(.68+Math.random()*.28);
+      const sx=Math.random()*window.innerWidth*.08;
+      const sy=window.innerHeight*(.56+Math.random()*.28);
       const dist=window.innerHeight*(.9+Math.random()*.5);
       const angle=(30+(Math.random()*16-8))*Math.PI/180;
       const dx=dist*Math.cos(angle);
