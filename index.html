@@ -387,7 +387,9 @@ body{
 .mg-result-btn{display:block;width:100%;margin-top:10px;padding:10px;background:var(--ac);color:#fff;border:none;border-radius:var(--radius-xs);font-size:14px;font-weight:700;letter-spacing:.2px;cursor:pointer;font-family:-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;}
 .mg-result-btn:active{opacity:.85;}
 @keyframes sd-slam{0%{opacity:0;transform:translate(-50%,-50%) scale(4);}40%{opacity:1;transform:translate(-50%,-50%) scale(.92);}60%{transform:translate(-50%,-50%) scale(1.04);}100%{transform:translate(-50%,-50%) scale(1);}}
-@keyframes sd-shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-8px);}40%,80%{transform:translateX(8px);}}
+@keyframes sd-txt{0%{opacity:0;letter-spacing:16px;}100%{opacity:1;letter-spacing:-1px;}}
+@keyframes coin-die{0%{transform:scale(1);opacity:1;}100%{transform:scale(0) rotate(180deg);opacity:0;}}
+@keyframes sd-hit{0%,100%{transform:scale(1);}50%{transform:scale(1.35);}}
 .mg-input{flex:1;font-size:13px;border:none;background:transparent;color:var(--tx);outline:none;font-family:-apple-system,'Helvetica Neue',sans-serif;}
 .mg-input::placeholder{color:var(--tx3);}
 .mg-expand-btn{font-size:11px;color:var(--tx3);cursor:pointer;padding:2px 4px;flex-shrink:0;background:none;border:none;}
@@ -1527,13 +1529,135 @@ function endMoneyGame(){
   }
 }
 
-function showSuddenDeath(onEnd){
+function showSuddenDeath(onSuccess){
+  let sdActive=true,sdRAF=null;
+  const hps=[120,120,120];
+  const W=window.innerWidth,H=window.innerHeight;
+  const FF='font-family:-apple-system,sans-serif;';
+
   const ov=document.createElement('div');
-  ov.style.cssText='position:fixed;inset:0;z-index:10005;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;';
-  ov.innerHTML=`<div style="font-size:52px;font-weight:900;color:#FF2200;letter-spacing:-1px;text-align:center;font-family:-apple-system,sans-serif;animation:sd-slam .55s cubic-bezier(.22,.68,0,1.2) forwards;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">SUDDEN<br>DEATH</div>
-    <div style="font-size:14px;color:rgba(255,255,255,.5);position:absolute;bottom:18%;font-family:-apple-system,sans-serif;animation:sd-slam .7s ease forwards">再挑戦します...</div>`;
+  ov.style.cssText='position:fixed;inset:0;z-index:10005;background:#0d0000;overflow:hidden;'+FF;
   document.body.appendChild(ov);
-  setTimeout(()=>{ov.remove();onEnd();},2600);
+
+  // タイトル
+  const title=document.createElement('div');
+  title.textContent='SUDDEN DEATH';
+  title.style.cssText='position:absolute;top:8%;left:50%;transform:translateX(-50%);font-size:36px;font-weight:900;color:#FF2200;letter-spacing:-1px;white-space:nowrap;z-index:30;text-shadow:0 0 20px rgba(255,50,0,.9),0 0 6px rgba(255,150,0,.7);animation:sd-txt .5s ease both;'+FF;
+  ov.appendChild(title);
+  const sub=document.createElement('div');
+  sub.textContent='お金を全て倒せ！炎が来る前に！';
+  sub.style.cssText='position:absolute;top:18%;left:50%;transform:translateX(-50%);font-size:12px;color:rgba(255,200,100,.85);white-space:nowrap;z-index:30;font-weight:600;'+FF;
+  ov.appendChild(sub);
+
+  // 四隅の炎
+  const fireEls=[
+    ['top:0;left:0','top left','0 100% 100% 0'],
+    ['top:0;right:0','top right','100% 0 0 100%'],
+    ['bottom:0;left:0','bottom left','0 0 100% 0'],
+    ['bottom:0;right:0','bottom right','100% 0 100% 0'],
+  ].map(([pos,corner,radius])=>{
+    const f=document.createElement('div');
+    f.style.cssText=`position:absolute;${pos};width:0;height:0;z-index:2;border-radius:${radius};`;
+    f.style.background=`radial-gradient(ellipse at ${corner},rgba(255,70,0,.97) 0%,rgba(255,140,0,.82) 28%,rgba(200,55,0,.58) 55%,rgba(150,30,0,.3) 72%,transparent 85%)`;
+    ov.appendChild(f);
+    return f;
+  });
+
+  // 敵お金3体
+  const enemyEls=[];
+  [0,1,2].forEach(i=>{
+    const ex=W*(.2+i*.3),ey=H*.46;
+    const wrap=document.createElement('div');
+    wrap.style.cssText=`position:absolute;left:${ex}px;top:${ey}px;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;z-index:20;`;
+    const em=document.createElement('div');
+    em.textContent='💸';
+    em.style.cssText='font-size:64px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;filter:drop-shadow(0 0 10px rgba(255,210,0,.8));transition:transform .1s;';
+    em.addEventListener('touchstart',e=>{e.preventDefault();sdHit(i);},{passive:false});
+    em.addEventListener('click',()=>sdHit(i));
+    const hpWrap=document.createElement('div');
+    hpWrap.style.cssText='width:76px;height:7px;background:rgba(0,0,0,.5);border-radius:4px;margin-top:6px;overflow:hidden;border:1px solid rgba(255,255,255,.18);';
+    const hpFill=document.createElement('div');
+    hpFill.style.cssText='height:100%;width:100%;background:#22c55e;border-radius:3px;transition:width .15s,background .15s;';
+    hpWrap.appendChild(hpFill);
+    wrap.appendChild(em);wrap.appendChild(hpWrap);
+    ov.appendChild(wrap);
+    enemyEls.push({wrap,em,hpFill});
+  });
+
+  // ポケモン風HPパネル
+  const hpPanel=document.createElement('div');
+  hpPanel.style.cssText='position:absolute;bottom:0;left:0;right:0;z-index:30;display:flex;gap:6px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:rgba(0,0,0,.78);border-top:1px solid rgba(255,100,0,.35);';
+  ov.appendChild(hpPanel);
+
+  function refreshHP(){
+    hpPanel.innerHTML=[0,1,2].map(i=>{
+      const hp=hps[i],pct=hp/120;
+      const col=pct>.5?'#22c55e':pct>.25?'#eab308':'#ef4444';
+      return `<div style="flex:1;background:rgba(255,255,255,.07);border-radius:8px;padding:7px 8px;border:1px solid rgba(255,255,255,.1);">
+        <div style="font-size:10px;color:#ffcc88;font-weight:700;margin-bottom:4px;${FF}">お金${['①','②','③'][i]}</div>
+        <div style="height:6px;background:rgba(0,0,0,.5);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:${pct*100}%;background:${col};border-radius:3px;transition:width .15s,background .15s;"></div>
+        </div>
+        <div style="font-size:10px;color:#aaa;margin-top:3px;text-align:right;${FF}">${hp<=0?'💀':hp+'/120'}</div>
+      </div>`;
+    }).join('');
+  }
+  refreshHP();
+
+  function sdHit(i){
+    if(!sdActive||hps[i]<=0)return;
+    hps[i]=Math.max(0,hps[i]-40);
+    const{em,hpFill}=enemyEls[i];
+    em.style.transform='scale(1.35)';
+    setTimeout(()=>{em.style.transform='';},110);
+    const pct=hps[i]/120;
+    hpFill.style.width=(pct*100)+'%';
+    hpFill.style.background=pct>.5?'#22c55e':pct>.25?'#eab308':'#ef4444';
+    if(hps[i]<=0){em.style.animation='coin-die .3s forwards';em.style.pointerEvents='none';}
+    refreshHP();
+    if(hps.every(h=>h<=0))sdWin();
+  }
+
+  function sdWin(){
+    sdActive=false;
+    if(sdRAF)cancelAnimationFrame(sdRAF);
+    const flash=document.createElement('div');
+    flash.style.cssText='position:absolute;inset:0;z-index:99;background:#fff;opacity:0;transition:opacity .15s;';
+    ov.appendChild(flash);
+    requestAnimationFrame(()=>{flash.style.opacity='1';});
+    setTimeout(()=>{ov.remove();onSuccess();},500);
+  }
+
+  function sdTimeUp(){
+    sdActive=false;
+    if(sdRAF)cancelAnimationFrame(sdRAF);
+    const dim=document.createElement('div');
+    dim.style.cssText='position:absolute;inset:0;z-index:40;background:rgba(0,0,0,0);transition:background .6s;';
+    ov.appendChild(dim);
+    requestAnimationFrame(()=>{dim.style.background='rgba(0,0,0,.85)';});
+    const panel=document.createElement('div');
+    panel.style.cssText='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;text-align:center;';
+    panel.innerHTML=`<div style="font-size:46px;font-weight:900;color:#fff;margin-bottom:24px;letter-spacing:-1px;text-shadow:0 0 28px rgba(255,80,0,.8);${FF}">CONTINUE?</div>
+      <button id="sd-cont" style="display:block;width:220px;padding:15px;background:#FF4400;color:#fff;border:none;border-radius:14px;font-size:18px;font-weight:700;margin:0 auto 12px;cursor:pointer;${FF}box-shadow:0 4px 20px rgba(255,68,0,.5);">Continue</button>
+      <button id="sd-quit" style="display:block;width:220px;padding:13px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.2);border-radius:14px;font-size:15px;cursor:pointer;${FF}margin:0 auto;">やめる</button>`;
+    ov.appendChild(panel);
+    setTimeout(()=>{
+      document.getElementById('sd-cont').onclick=()=>{ov.remove();showSuddenDeath(onSuccess);};
+      document.getElementById('sd-quit').onclick=()=>{ov.remove();};
+    },100);
+  }
+
+  // 炎アニメーション
+  const FIRE_DUR=9000,maxSz=Math.sqrt(W*W+H*H)*.72,fireStart=performance.now();
+  (function fireStep(now){
+    if(!sdActive)return;
+    const t=Math.min((now-fireStart)/FIRE_DUR,1);
+    const flicker=1+Math.sin(now*.013)*.04+Math.sin(now*.021)*.025;
+    const sz=t*maxSz*flicker;
+    fireEls.forEach(f=>{f.style.width=sz+'px';f.style.height=sz+'px';});
+    if(t>=1){sdTimeUp();return;}
+    sdRAF=requestAnimationFrame(fireStep);
+  })(fireStart);
 }
 
 function launchMoney(){startMoneyGame();}
