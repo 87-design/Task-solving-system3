@@ -447,7 +447,7 @@ body{
   background:#EEF9FB;color:var(--tx);border:1.5px solid rgba(10,143,163,.25);
   font-family:-apple-system,'Helvetica Neue',sans-serif;
 }
-.day-add-row input:focus{outline:none;background:rgba(215,251,255,.95);box-shadow:0 0 0 2px rgba(10,143,163,.2);}
+.day-add-row input:focus{outline:none;background:#fff;border-color:var(--ac);box-shadow:0 0 0 3px rgba(10,143,163,.12);}
 .day-add-row input::placeholder{color:var(--tx3);}
 .day-add-btn{
   width:38px;height:38px;border-radius:50%;border:none;
@@ -876,75 +876,92 @@ function toggleMusic(){
 
 // ── Sound Effects ─────────────────────────────
 function playCrack(n){
+  // 水晶・ガラスにひびが入る音 — 高音の鋭いピン＋余韻
   const c=gc();if(!c)return;
-  const t=c.currentTime,iv=n/4,rv=mkReverb(c,0.18,4.0),echo=mkEcho(c,0.06,0.04);
-  const out=c.createGain();out.gain.value=1.0;
-  rv.connect(echo);echo.connect(out);out.connect(c.destination);
-  [2400,3600,5000,1800,6500].forEach((f,i)=>{
-    const d=i*.016,o=c.createOscillator(),g=c.createGain();
-    o.connect(g);g.connect(rv);o.type='triangle';
-    o.frequency.setValueAtTime(f*(0.4+iv*.6),t+d);
-    o.frequency.exponentialRampToValueAtTime(f*.08,t+d+.18);
-    g.gain.setValueAtTime(.25+iv*.12,t+d);
-    g.gain.exponentialRampToValueAtTime(.001,t+d+.22);
-    o.start(t+d);o.stop(t+d+.28);
+  const t=c.currentTime,iv=n/4;
+  const rv=mkReverb(c,1.2,2.8);
+  const out=c.createGain();out.gain.value=.7;rv.connect(out);out.connect(c.destination);
+  // クリスタル音程（倍音列）
+  [5800,8700,11600,3900,7200].forEach((f,i)=>{
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='sine';o.frequency.value=f*(0.55+iv*.45);
+    const att=i*.008,dec=.06+iv*.08;
+    g.gain.setValueAtTime(0,t+att);
+    g.gain.linearRampToValueAtTime(.18+iv*.10,t+att+.004);
+    g.gain.exponentialRampToValueAtTime(.001,t+att+dec);
+    o.connect(g);g.connect(rv);o.start(t+att);o.stop(t+att+dec+.05);
   });
-  const b=c.createBuffer(1,c.sampleRate*.12,c.sampleRate),d2=b.getChannelData(0);
-  for(let i=0;i<d2.length;i++)d2[i]=(Math.random()*2-1)*Math.pow(1-i/d2.length,1.3)*.35*iv;
-  const s=c.createBufferSource(),hp=c.createBiquadFilter();
-  hp.type='highpass';hp.frequency.value=1200;s.buffer=b;
-  s.connect(hp);hp.connect(rv);s.start(t);
+  // 鋭いクリック（インパクト感）
+  const buf=c.createBuffer(1,c.sampleRate*.04,c.sampleRate),bd=buf.getChannelData(0);
+  for(let i=0;i<bd.length;i++)bd[i]=(Math.random()*2-1)*Math.pow(1-i/bd.length,2.5)*.4*iv;
+  const bs=c.createBufferSource(),hpf=c.createBiquadFilter();
+  hpf.type='highpass';hpf.frequency.value=3000;
+  bs.buffer=buf;bs.connect(hpf);hpf.connect(rv);bs.start(t);
 }
 
 function playSmash(){
+  // ガラスが砕け散る音 — 爆発的な破砕＋細かい破片が飛び散る余韻
   const c=gc();if(!c)return;
-  const t=c.currentTime,rv=mkReverb(c,0.2,4.0),echo=mkEcho(c,0.07,0.04);
-  const out=c.createGain();out.gain.value=1.0;
-  rv.connect(echo);echo.connect(out);out.connect(c.destination);
-  [4000,5500,3000,7000,2500,6500,4800,8000].forEach((f,i)=>{
-    const d=i*.012,o=c.createOscillator(),g=c.createGain();
-    o.connect(g);g.connect(rv);o.type=i%2?'sine':'triangle';
-    o.frequency.setValueAtTime(f,t+d);o.frequency.exponentialRampToValueAtTime(f*.1,t+d+.3);
-    g.gain.setValueAtTime(.32,t+d);g.gain.exponentialRampToValueAtTime(.001,t+d+.35);
-    o.start(t+d);o.stop(t+d+.4);
+  const t=c.currentTime;
+  const rv=mkReverb(c,2.5,1.8);
+  const out=c.createGain();out.gain.value=.8;rv.connect(out);out.connect(c.destination);
+  // 初期衝撃：広帯域ノイズバースト
+  const nb=c.createBuffer(1,c.sampleRate*.18,c.sampleRate),nd=nb.getChannelData(0);
+  for(let i=0;i<nd.length;i++)nd[i]=(Math.random()*2-1)*Math.pow(1-i/nd.length,.7)*.9;
+  const ns=c.createBufferSource(),hpn=c.createBiquadFilter(),gn=c.createGain();
+  hpn.type='highpass';hpn.frequency.value=1800;
+  gn.gain.setValueAtTime(1.0,t);gn.gain.exponentialRampToValueAtTime(.001,t+.18);
+  ns.buffer=nb;ns.connect(hpn);hpn.connect(gn);gn.connect(rv);ns.start(t);
+  // 破片が飛ぶ高音クリスタル群
+  [6200,9100,12400,4800,7700,10500,5500,8300,14000,3600].forEach((f,i)=>{
+    const d=i*.014,o=c.createOscillator(),g=c.createGain();
+    o.type='sine';o.frequency.value=f;
+    g.gain.setValueAtTime(.15,t+d);
+    g.gain.exponentialRampToValueAtTime(.001,t+d+.22+i*.018);
+    o.connect(g);g.connect(rv);o.start(t+d);o.stop(t+d+.3);
   });
-  const b=c.createBuffer(1,c.sampleRate*.35,c.sampleRate),d2=b.getChannelData(0);
-  for(let i=0;i<d2.length;i++)d2[i]=(Math.random()*2-1)*Math.pow(1-i/d2.length,1.0)*.5;
-  const s=c.createBufferSource(),hp=c.createBiquadFilter(),gn=c.createGain();
-  hp.type='highpass';hp.frequency.value=1400;gn.gain.setValueAtTime(1.2,t);gn.gain.exponentialRampToValueAtTime(.001,t+.35);
-  s.buffer=b;s.connect(hp);hp.connect(gn);gn.connect(rv);s.start(t);
-  [.04,.09,.16,.24,.34,.46].forEach((d,i)=>{
+  // 遠くで細かい破片が落ちる余韻
+  [.15,.26,.38,.52,.68,.86,1.05].forEach((d,i)=>{
     const o=c.createOscillator(),g=c.createGain();
-    o.connect(g);g.connect(rv);o.type='sine';
-    o.frequency.setValueAtTime(4500+i*600,t+d);
-    g.gain.setValueAtTime(.22,t+d);g.gain.exponentialRampToValueAtTime(.001,t+d+.12);
-    o.start(t+d);o.stop(t+d+.15);
+    o.type='sine';o.frequency.value=7000+i*900;
+    g.gain.setValueAtTime(.08,t+d);g.gain.exponentialRampToValueAtTime(.001,t+d+.08);
+    o.connect(g);g.connect(rv);o.start(t+d);o.stop(t+d+.1);
   });
 }
 
 function playIce(){
+  // 氷が割れる音 — 重い衝撃＋ガラスの割れる鋭い音＋広がる余韻
   const c=gc();if(!c)return;
-  const t=c.currentTime,rv=mkReverb(c,0.22,4.0),echo=mkEcho(c,0.08,0.04);
-  const out=c.createGain();out.gain.value=1.0;
-  rv.connect(echo);echo.connect(out);out.connect(c.destination);
-  [3000,4500,6000,3800,7500,2200,6800,5200,1900,9000,11000,800].forEach((f,i)=>{
-    const d=i*.018,o=c.createOscillator(),g=c.createGain();
-    o.connect(g);g.connect(rv);o.type=i%3?'triangle':'sine';
-    o.frequency.setValueAtTime(f,t+d);o.frequency.exponentialRampToValueAtTime(f*.06,t+d+.5);
-    g.gain.setValueAtTime(.32,t+d);g.gain.exponentialRampToValueAtTime(.001,t+d+.55);
-    o.start(t+d);o.stop(t+d+.62);
+  const t=c.currentTime;
+  const rv=mkReverb(c,3.0,2.2);
+  const out=c.createGain();out.gain.value=.75;rv.connect(out);out.connect(c.destination);
+  // ドスン（低音衝撃）
+  const lb=c.createBuffer(1,c.sampleRate*.25,c.sampleRate),ld=lb.getChannelData(0);
+  for(let i=0;i<ld.length;i++)ld[i]=(Math.random()*2-1)*Math.pow(1-i/ld.length,.55)*.8;
+  const ls2=c.createBufferSource(),lpf=c.createBiquadFilter(),lg=c.createGain();
+  lpf.type='lowpass';lpf.frequency.value=600;
+  lg.gain.setValueAtTime(1.2,t);lg.gain.exponentialRampToValueAtTime(.001,t+.25);
+  ls2.buffer=lb;ls2.connect(lpf);lpf.connect(lg);lg.connect(rv);ls2.start(t);
+  // ガラス的な高音破砕
+  const hb=c.createBuffer(1,c.sampleRate*.3,c.sampleRate),hd=hb.getChannelData(0);
+  for(let i=0;i<hd.length;i++)hd[i]=(Math.random()*2-1)*Math.pow(1-i/hd.length,.75)*.7;
+  const hs=c.createBufferSource(),hpf2=c.createBiquadFilter(),hg=c.createGain();
+  hpf2.type='highpass';hpf2.frequency.value=2200;
+  hg.gain.setValueAtTime(.9,t+.02);hg.gain.exponentialRampToValueAtTime(.001,t+.32);
+  hs.buffer=hb;hs.connect(hpf2);hpf2.connect(hg);hg.connect(rv);hs.start(t+.02);
+  // クリスタル散乱音
+  [5200,8400,11200,4100,7600,9800,6600,12800].forEach((f,i)=>{
+    const d=.03+i*.022,o=c.createOscillator(),g=c.createGain();
+    o.type='sine';o.frequency.value=f;
+    g.gain.setValueAtTime(.14,t+d);g.gain.exponentialRampToValueAtTime(.001,t+d+.35+i*.03);
+    o.connect(g);g.connect(rv);o.start(t+d);o.stop(t+d+.45);
   });
-  const b=c.createBuffer(1,c.sampleRate*.7,c.sampleRate),d2=b.getChannelData(0);
-  for(let i=0;i<d2.length;i++)d2[i]=(Math.random()*2-1)*Math.pow(1-i/d2.length,.8)*.6;
-  const s=c.createBufferSource(),hp=c.createBiquadFilter(),gn=c.createGain();
-  hp.type='highpass';hp.frequency.value=1800;gn.gain.setValueAtTime(1.4,t);gn.gain.exponentialRampToValueAtTime(.001,t+.7);
-  s.buffer=b;s.connect(hp);hp.connect(gn);gn.connect(rv);s.start(t);
-  [.05,.11,.19,.28,.38,.5,.63,.78,.95,1.1].forEach((d,i)=>{
+  // 飛び散る破片の余韻（長め）
+  [.2,.35,.52,.72,.95,1.2,1.5].forEach((d,i)=>{
     const o=c.createOscillator(),g=c.createGain();
-    o.connect(g);g.connect(rv);o.type='sine';
-    o.frequency.setValueAtTime(3800+i*520,t+d);
-    g.gain.setValueAtTime(.25,t+d);g.gain.exponentialRampToValueAtTime(.001,t+d+.18);
-    o.start(t+d);o.stop(t+d+.22);
+    o.type='sine';o.frequency.value=6500+i*1100;
+    g.gain.setValueAtTime(.07,t+d);g.gain.exponentialRampToValueAtTime(.001,t+d+.12);
+    o.connect(g);g.connect(rv);o.start(t+d);o.stop(t+d+.15);
   });
 }
 
@@ -1019,49 +1036,42 @@ function freeze(){
 
 function drawIce(cv){
   const ctx=cv.getContext('2d'),w=cv.width,h=cv.height;
-  // ── base: luminous glass layer ──
+  // ── ベース：極めて透明なガラス ──
   const g=ctx.createLinearGradient(0,0,w,h);
-  g.addColorStop(0,'rgba(220,248,255,.72)');
-  g.addColorStop(.4,'rgba(190,238,252,.62)');
-  g.addColorStop(.7,'rgba(170,228,248,.68)');
-  g.addColorStop(1,'rgba(200,245,255,.78)');
+  g.addColorStop(0,'rgba(235,252,255,.55)');
+  g.addColorStop(.5,'rgba(210,245,255,.42)');
+  g.addColorStop(1,'rgba(225,250,255,.50)');
   ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-  // ── rainbow prismatic sheen ──
-  const pr=ctx.createLinearGradient(0,0,w*.6,h);
-  pr.addColorStop(0,'rgba(255,255,255,.22)');
-  pr.addColorStop(.2,'rgba(200,248,255,.14)');
-  pr.addColorStop(.4,'rgba(220,255,240,.12)');
-  pr.addColorStop(.6,'rgba(255,240,255,.10)');
-  pr.addColorStop(1,'rgba(255,255,255,.18)');
-  ctx.fillStyle=pr;ctx.fillRect(0,0,w,h);
-  // ── top highlight band ──
-  const th=ctx.createLinearGradient(0,0,0,h*.18);
-  th.addColorStop(0,'rgba(255,255,255,.55)');
-  th.addColorStop(1,'rgba(255,255,255,0)');
-  ctx.fillStyle=th;ctx.fillRect(0,0,w,h*.18);
-  // ── crystal fracture lines ──
-  ctx.lineWidth=.9;
-  for(let i=0;i<70;i++){
-    const ox=Math.random()*w,oy=Math.random()*h,br=3+Math.random()*5|0;
-    const bright=.45+Math.random()*.45;
-    ctx.strokeStyle=`rgba(255,255,255,${bright})`;
+  // ── 左上から右下への白いガラス反射 ──
+  const shine=ctx.createLinearGradient(0,0,w*.5,h*.4);
+  shine.addColorStop(0,'rgba(255,255,255,.38)');
+  shine.addColorStop(.4,'rgba(255,255,255,.12)');
+  shine.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=shine;ctx.fillRect(0,0,w,h);
+  // ── 細い白い結晶ライン ──
+  for(let i=0;i<55;i++){
+    const ox=Math.random()*w,oy=Math.random()*h,br=2+Math.random()*4|0;
+    const a0=Math.random()*Math.PI*2;
     for(let b=0;b<br;b++){
-      const a=(b/br)*Math.PI*2+Math.random()*.5,l=12+Math.random()*90;
+      const a=a0+(b/br)*Math.PI*2,l=8+Math.random()*70;
+      const alpha=.3+Math.random()*.5;
+      ctx.strokeStyle=`rgba(255,255,255,${alpha})`;
+      ctx.lineWidth=.7;
       ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+Math.cos(a)*l,oy+Math.sin(a)*l);ctx.stroke();
-      for(let s=0;s<3;s++){
-        const sf=.25+s*.25,sa=a+(Math.random()-.5)*1.5;
-        ctx.strokeStyle=`rgba(255,255,255,${bright*.7})`;
-        ctx.beginPath();ctx.moveTo(ox+Math.cos(a)*l*sf,oy+Math.sin(a)*l*sf);
-        ctx.lineTo(ox+Math.cos(a)*l*sf+Math.cos(sa)*l*.32,oy+Math.sin(a)*l*sf+Math.sin(sa)*l*.32);ctx.stroke();
+      if(Math.random()>.5){
+        const sl=l*(0.3+Math.random()*.3),sa=a+(Math.random()-.5)*1.2;
+        const mx=ox+Math.cos(a)*sl,my=oy+Math.sin(a)*sl;
+        ctx.strokeStyle=`rgba(200,240,255,${alpha*.7})`;
+        ctx.lineWidth=.5;
+        ctx.beginPath();ctx.moveTo(mx,my);ctx.lineTo(mx+Math.cos(sa)*sl*.5,my+Math.sin(sa)*sl*.5);ctx.stroke();
       }
     }
   }
-  // ── subtle teal accent cracks ──
-  ctx.strokeStyle='rgba(100,220,240,.28)';ctx.lineWidth=.6;
-  for(let i=0;i<25;i++){
-    const ox=Math.random()*w,oy=Math.random()*h,a=Math.random()*Math.PI*2,l=20+Math.random()*60;
-    ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+Math.cos(a)*l,oy+Math.sin(a)*l);ctx.stroke();
-  }
+  // ── 下部ほど少し濃いガラス感 ──
+  const btm=ctx.createLinearGradient(0,h*.7,0,h);
+  btm.addColorStop(0,'rgba(180,235,248,0)');
+  btm.addColorStop(1,'rgba(180,235,248,.18)');
+  ctx.fillStyle=btm;ctx.fillRect(0,h*.7,w,h*.3);
 }
 
 function drawSK(){
@@ -1209,19 +1219,24 @@ function confirmReset(){
 
 // ── crack lines ───────────────────────────────
 function clines(iv){
-  const ls=[],or=[[114,24],[228,14],[57,29]],cnt=3+iv*9|0;
+  const ls=[],cnt=4+iv*10|0;
+  // 亀裂の起点を中心付近に集める
+  const cx=190,cy=28;
   for(let i=0;i<cnt;i++){
-    const ox=or[i%3][0]+(Math.random()-.5)*60,oy=or[i%3][1]+(Math.random()-.5)*20;
-    const a=Math.random()*Math.PI*2,l=20+Math.random()*65*iv;
-    const ex=ox+Math.cos(a)*l,ey=oy+Math.sin(a)*l,mx=ox+Math.cos(a)*l*.5+(Math.random()-.5)*15,my=oy+Math.sin(a)*l*.5+(Math.random()-.5)*10;
-    const op=.5+iv*.45;
-    const sw=.7+iv*1.4;
-    // white glow crack + teal shadow for depth
-    ls.push(`<path d="M${ox},${oy} Q${mx},${my} ${ex},${ey}" stroke="rgba(100,220,240,${op*.5})" stroke-width="${sw+1.5}" fill="none" stroke-linecap="round"/>`);
+    const ox=cx+(Math.random()-.5)*80,oy=cy+(Math.random()-.5)*22;
+    const a=Math.random()*Math.PI*2,l=14+Math.random()*72*iv;
+    const ex=ox+Math.cos(a)*l,ey=oy+Math.sin(a)*l;
+    const mx=ox+Math.cos(a)*l*.45+(Math.random()-.5)*12,my=oy+Math.sin(a)*l*.45+(Math.random()-.5)*8;
+    const op=Math.min(.95,.38+iv*.62);
+    const sw=.5+iv*1.2;
+    // ティールのグロー（奥行き感）
+    ls.push(`<path d="M${ox},${oy} Q${mx},${my} ${ex},${ey}" stroke="rgba(140,225,240,${op*.45})" stroke-width="${sw+2}" fill="none" stroke-linecap="round"/>`);
+    // 白い亀裂本体
     ls.push(`<path d="M${ox},${oy} Q${mx},${my} ${ex},${ey}" stroke="rgba(255,255,255,${op})" stroke-width="${sw}" fill="none" stroke-linecap="round"/>`);
-    if(iv>.3&&Math.random()>.5){
-      const a2=a+.8+(Math.random()-.5)*1,l2=10+Math.random()*35*iv;
-      ls.push(`<path d="M${mx},${my} L${mx+Math.cos(a2)*l2},${my+Math.sin(a2)*l2}" stroke="rgba(255,255,255,${.3+iv*.35})" stroke-width=".8" fill="none" stroke-linecap="round"/>`);
+    // 枝亀裂
+    if(iv>.25&&Math.random()>.45){
+      const a2=a+.7+(Math.random()-.5)*.9,l2=8+Math.random()*32*iv;
+      ls.push(`<path d="M${mx},${my} L${mx+Math.cos(a2)*l2},${my+Math.sin(a2)*l2}" stroke="rgba(255,255,255,${op*.7})" stroke-width="${sw*.7}" fill="none" stroke-linecap="round"/>`);
     }
   }
   return ls.join('');

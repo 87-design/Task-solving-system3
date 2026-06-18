@@ -1,53 +1,71 @@
 """python3 gen-icons.py  →  icons/ にPNG生成（pip3 install pillow）"""
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw
 import os, math
 
 os.makedirs('icons', exist_ok=True)
 
 def draw_icon(size):
-    img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-
-    # ── 角丸マスク（iOS標準: 約22.5%）
+    img = Image.new('RGBA', (size, size), (0,0,0,0))
     r = int(size * 0.225)
 
-    # ── 背景グラデーション（左上 明るいティール → 右下 深いティール）
+    # ── 背景グラデーション（左上の明るいシアン → 右下の深いティール）
     for y in range(size):
         for x in range(size):
-            t = (x + y) / (size * 2)
-            rc = int(120 + (8   - 120) * t)   # 120 → 8
-            gc = int(218 + (143 - 218) * t)   # 218 → 143
-            bc = int(220 + (163 - 220) * t)   # 220 → 163
+            # 対角方向 t: 0.0(左上) → 1.0(右下)
+            t = (x + y) / (size * 2.0)
+            rc = int(round(148 * (1-t) + 8   * t))
+            gc = int(round(224 * (1-t) + 143 * t))
+            bc = int(round(232 * (1-t) + 163 * t))
             img.putpixel((x, y), (rc, gc, bc, 255))
 
-    # ── 左上からの白いシーン（光の当たり）
-    shine = Image.new('RGBA', (size, size), (0, 0, 0, 0))
-    sd = ImageDraw.Draw(shine)
-    sd.ellipse([-size//3, -size//3, int(size*0.9), int(size*0.9)],
-               fill=(255, 255, 255, 38))
-    img = Image.alpha_composite(img, shine)
-
-    # ── 角丸マスク適用
+    # ── 角丸マスク
     mask = Image.new('L', (size, size), 0)
-    ImageDraw.Draw(mask).rounded_rectangle([0, 0, size-1, size-1], radius=r, fill=255)
+    ImageDraw.Draw(mask).rounded_rectangle([0,0,size-1,size-1], radius=r, fill=255)
     img.putalpha(mask)
 
     draw = ImageDraw.Draw(img)
 
-    # ── チェックマーク座標
+    # ── ガラス光沢レイヤー1: 左上の大きな白い楕円ハイライト
+    shine = Image.new('RGBA', (size, size), (0,0,0,0))
+    sd = ImageDraw.Draw(shine)
+    cx, cy = int(size*.30), int(size*.22)
+    for step in range(60):
+        prog = step / 60
+        alpha = int(52 * (1 - prog)**2)
+        rx = int(size * (.55 - prog*.30))
+        ry = int(size * (.38 - prog*.22))
+        sd.ellipse([cx-rx, cy-ry, cx+rx, cy+ry], fill=(255,255,255,alpha))
+    img = Image.alpha_composite(img, shine)
+
+    # ── ガラス光沢レイヤー2: 上部の細い白いハイライト帯
+    for y2 in range(int(size*.18)):
+        t2 = y2 / (size*.18)
+        alpha = int(38 * (1-t2)**2)
+        draw2 = ImageDraw.Draw(img)
+        draw2.rectangle([0, y2, size, y2], fill=(255,255,255,alpha))
+
+    # ── 角丸マスク再適用（光沢描画後）
+    img.putalpha(mask)
+    draw = ImageDraw.Draw(img)
+
+    # ── チェックマーク
     pts = [
-        (size * 0.22, size * 0.52),
-        (size * 0.42, size * 0.70),
-        (size * 0.78, size * 0.30),
+        (size * 0.215, size * 0.520),
+        (size * 0.415, size * 0.705),
+        (size * 0.785, size * 0.298),
     ]
-    lw = max(int(size * 0.092), 5)
+    lw = max(int(size * 0.088), 5)
 
-    # ドロップシャドウ（薄く）
-    shadow_pts = [(x + size*0.018, y + size*0.022) for x, y in pts]
-    draw.line(shadow_pts, fill=(0, 60, 80, 55), width=lw)
+    # ドロップシャドウ
+    shd = [(x + size*.020, y + size*.024) for x,y in pts]
+    draw.line(shd, fill=(0, 55, 75, 60), width=lw+2)
 
-    # 白チェックマーク（端を丸く）
-    draw.line(pts, fill=(255, 255, 255, 255), width=lw, joint='curve')
+    # 白チェック本体
+    draw.line(pts, fill=(255, 255, 255, 255), width=lw)
+
+    # 白いグロー（重ねて柔らかく）
+    draw.line(pts, fill=(255, 255, 255, 90), width=lw+4)
+    draw.line(pts, fill=(255, 255, 255, 255), width=lw)
 
     return img
 
