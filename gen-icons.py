@@ -13,7 +13,7 @@ def draw_icon(size):
     ImageDraw.Draw(mask).rounded_rectangle([0,0,size-1,size-1], radius=r, fill=255)
 
     # 波のベースライン（上から38% — チェックマーク最上部のすぐ上）
-    wave_y_base = size * 0.38
+    wave_y_base = size * 0.18
     amp         = size * 0.044
     steps       = size * 2
 
@@ -30,7 +30,7 @@ def draw_icon(size):
     pts2 = []
     for i in range(steps + 1):
         x = i * size / steps
-        y = (wave_y_base - size*0.058
+        y = (wave_y_base - size*0.030
              + amp * math.sin(2*math.pi * x/size * 1.6 + 0.85)
              + amp * 0.32 * math.sin(2*math.pi * x/size * 2.9 + 0.4))
         pts2.append((x, y))
