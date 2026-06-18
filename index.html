@@ -353,14 +353,10 @@ body{
 .cal-cell:active{background:rgba(255,255,255,.80);}
 .cal-cell.cal-empty{background:transparent;border-color:transparent;cursor:default;pointer-events:none;box-shadow:none;backdrop-filter:none;}
 .cal-cell.cal-today{background:rgba(255,255,255,.80);border-color:var(--ac);border-width:2px;}
-.cal-cell.cal-today .cal-num{
-  background:var(--ac);color:#fff;font-weight:700;
-  border-radius:50%;width:22px;height:22px;
-  display:flex;align-items:center;justify-content:center;margin:0 auto;
-}
+.cal-cell.cal-today .cal-num{font-weight:700;color:var(--ac);}
 .cal-num{font-size:13px;font-weight:600;color:var(--tx);line-height:1.2;text-align:center;}
 .cal-cell.cal-sun .cal-num{color:#C0392B;}
-.cal-cell.cal-today.cal-sun .cal-num{color:#fff;}
+.cal-cell.cal-today.cal-sun .cal-num{color:#C0392B;}
 .cal-dots{display:flex;gap:2px;margin-top:3px;justify-content:center;flex-wrap:wrap;}
 .cal-dot{width:5px;height:5px;border-radius:50%;}
 .cal-dot-task{background:#E8841A;}
@@ -507,8 +503,6 @@ body{
 <body>
 
 <!-- VERSION MARKER (診断用・あとで消します) -->
-<div style="position:fixed;left:8px;bottom:8px;z-index:9999;background:#DC2626;color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;font-family:-apple-system,sans-serif;">v3 NEW</div>
-
 <!-- LIQUID BACKGROUND -->
 <div id="lbg">
   <div class="orb orb1"></div>
