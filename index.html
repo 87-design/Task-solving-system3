@@ -1465,21 +1465,57 @@ function _doCast(){
   },300);
 }
 
+function formatYenJP(n){
+  const kei=1e16,cho=1e12,oku=1e8;
+  let s='',r=n;
+  if(r>=kei){s+=Math.floor(r/kei)+'京';r=r%kei;}
+  if(r>=cho){s+=Math.floor(r/cho)+'兆';r=r%cho;}
+  if(r>=oku){s+=Math.floor(r/oku)+'億';r=r%oku;}
+  if(r>0||s==='')s+=r.toLocaleString();
+  return s;
+}
+
+function playCoin(){
+  try{
+    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    [[1319,0,.0],[1976,.07,.12]].forEach(([freq,t,dur])=>{
+      const o=ac.createOscillator(),g=ac.createGain();
+      o.connect(g);g.connect(ac.destination);
+      o.type='square';o.frequency.value=freq;
+      g.gain.setValueAtTime(.28,ac.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t+dur);
+      o.start(ac.currentTime+t);o.stop(ac.currentTime+t+dur+.01);
+    });
+  }catch(e){}
+}
+
+function updateCumulDisplay(){
+  const total=parseInt(localStorage.getItem('total_earned_v1')||'0');
+  let el=document.getElementById('cumul-display');
+  if(!el){
+    el=document.createElement('div');el.id='cumul-display';
+    el.style.cssText='position:fixed;bottom:calc(env(safe-area-inset-bottom)+12px);left:50%;transform:translateX(-50%);z-index:200;font-size:12px;font-weight:600;color:var(--tx3);background:rgba(255,255,255,.82);padding:5px 14px;border-radius:14px;backdrop-filter:blur(8px);pointer-events:none;white-space:nowrap;box-shadow:0 1px 8px rgba(0,0,0,.08);font-family:-apple-system,sans-serif;';
+    document.body.appendChild(el);
+  }
+  el.textContent='累積獲得金額：'+formatYenJP(total)+'円';
+}
+
 function _checkHit(hookY){
   const cx=window.innerWidth/2;
-  const hRange=window.innerWidth*.22;
-  const vRange=window.innerHeight*.11;
+  const hRange=window.innerWidth*.09;
+  const vRange=window.innerHeight*.06;
   document.querySelectorAll('.money-emoji').forEach(el=>{
     const r=el.getBoundingClientRect();
     const ex=r.left+r.width/2,ey=r.top+r.height/2;
     if(Math.abs(ex-cx)<hRange&&Math.abs(ey-hookY)<vRange){
       _caught++;
+      playCoin();
       el.style.transition='transform .22s,opacity .22s';
       el.style.transform='scale(0)translateY(-50px)';
       el.style.opacity='0';
       setTimeout(()=>el.remove(),220);
       const fb=document.createElement('div');
-      fb.textContent='+¥240,000';
+      fb.textContent='+24万円';
       fb.style.cssText=`position:fixed;left:${ex}px;top:${ey}px;color:#16a34a;font-weight:800;font-size:17px;z-index:10001;pointer-events:none;transform:translate(-50%,-50%);animation:catch-pop .9s forwards;font-family:-apple-system,sans-serif;`;
       document.body.appendChild(fb);
       setTimeout(()=>fb.remove(),900);
@@ -1494,13 +1530,18 @@ function endFishingGame(){
   const g=document.getElementById('fish-game');if(g)g.remove();
   const h=document.getElementById('fish-hint');if(h)h.remove();
   document.querySelectorAll('.money-emoji').forEach(el=>el.remove());
-  const total=_caught*240000;
+  const sessionTotal=_caught*240000;
+  const prev=parseInt(localStorage.getItem('total_earned_v1')||'0');
+  const newTotal=prev+sessionTotal;
+  localStorage.setItem('total_earned_v1',String(newTotal));
+  updateCumulDisplay();
   const res=document.createElement('div');
   res.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10002;text-align:center;background:#fff;border-radius:28px;padding:38px 48px;box-shadow:0 12px 56px rgba(0,0,0,.22);font-family:-apple-system,sans-serif;min-width:260px;';
   res.innerHTML=`<div style="font-size:48px;margin-bottom:4px">🎉</div>`
     +`<div style="font-size:26px;font-weight:800;color:#062830;margin-bottom:8px">おめでとう！</div>`
-    +`<div style="font-size:46px;font-weight:900;color:#16a34a;margin:10px 0">¥${total.toLocaleString()}</div>`
-    +`<div style="font-size:13px;color:#5A9AAD;margin-bottom:22px">${_caught}個のお金をGetしました！</div>`
+    +`<div style="font-size:46px;font-weight:900;color:#16a34a;margin:10px 0">${formatYenJP(sessionTotal)}円</div>`
+    +`<div style="font-size:13px;color:#5A9AAD;margin-bottom:4px">${_caught}個のお金をGetしました！</div>`
+    +`<div style="font-size:12px;color:#5A9AAD;margin-bottom:22px">累積：${formatYenJP(newTotal)}円</div>`
     +`<button onclick="this.parentElement.remove()" style="background:#0891B2;color:#fff;border:none;border-radius:22px;padding:13px 36px;font-size:16px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;">閉じる</button>`;
   document.body.appendChild(res);
 }
@@ -1667,6 +1708,7 @@ document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault
 // ── Init ──────────────────────────────────────
 updDateUI();ra();updW();drawSK();loadMindset();
 goScreen('calendar');
+updateCumulDisplay();
 </script>
 </body>
 </html>
