@@ -1455,22 +1455,23 @@ function _doCast(){
   const line=document.getElementById('fish-line');
   if(!line){_hookBusy=false;return;}
   const depth=window.innerHeight*.64;
-  line.style.transition='height .28s ease-in';
+  line.style.transition='height .14s ease-in';
   line.style.height=depth+'px';
   setTimeout(()=>{
     _checkHit(depth);
-    line.style.transition='height .42s ease-out';
+    line.style.transition='height .21s ease-out';
     line.style.height='0';
-    setTimeout(()=>{_hookBusy=false;},460);
-  },300);
+    setTimeout(()=>{_hookBusy=false;},230);
+  },150);
 }
 
 function formatYenJP(n){
-  const kei=1e16,cho=1e12,oku=1e8;
+  const kei=1e16,cho=1e12,oku=1e8,man=1e4;
   let s='',r=n;
   if(r>=kei){s+=Math.floor(r/kei)+'京';r=r%kei;}
   if(r>=cho){s+=Math.floor(r/cho)+'兆';r=r%cho;}
   if(r>=oku){s+=Math.floor(r/oku)+'億';r=r%oku;}
+  if(r>=man){s+=Math.floor(r/man)+'万';r=r%man;}
   if(r>0||s==='')s+=r.toLocaleString();
   return s;
 }
@@ -1478,13 +1479,20 @@ function formatYenJP(n){
 function playCoin(){
   try{
     const ac=new(window.AudioContext||window.webkitAudioContext)();
-    [[1319,0,.0],[1976,.07,.12]].forEach(([freq,t,dur])=>{
+    // 軽快なコイン音: sine+triangle の重ね、上昇する3音
+    [[1568,0,.0,.18],[2093,.055,.13,.22],[2637,.1,.18,.16]].forEach(([freq,t,dur,vol])=>{
       const o=ac.createOscillator(),g=ac.createGain();
+      const o2=ac.createOscillator(),g2=ac.createGain();
       o.connect(g);g.connect(ac.destination);
-      o.type='square';o.frequency.value=freq;
-      g.gain.setValueAtTime(.28,ac.currentTime+t);
+      o2.connect(g2);g2.connect(ac.destination);
+      o.type='sine';o.frequency.value=freq;
+      o2.type='triangle';o2.frequency.value=freq*2.01;
+      g.gain.setValueAtTime(vol,ac.currentTime+t);
       g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t+dur);
+      g2.gain.setValueAtTime(vol*.35,ac.currentTime+t);
+      g2.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t+dur*.7);
       o.start(ac.currentTime+t);o.stop(ac.currentTime+t+dur+.01);
+      o2.start(ac.currentTime+t);o2.stop(ac.currentTime+t+dur+.01);
     });
   }catch(e){}
 }
@@ -1494,10 +1502,10 @@ function updateCumulDisplay(){
   let el=document.getElementById('cumul-display');
   if(!el){
     el=document.createElement('div');el.id='cumul-display';
-    el.style.cssText='position:fixed;bottom:calc(env(safe-area-inset-bottom)+12px);left:50%;transform:translateX(-50%);z-index:200;font-size:12px;font-weight:600;color:var(--tx3);background:rgba(255,255,255,.82);padding:5px 14px;border-radius:14px;backdrop-filter:blur(8px);pointer-events:none;white-space:nowrap;box-shadow:0 1px 8px rgba(0,0,0,.08);font-family:-apple-system,sans-serif;';
+    el.style.cssText='position:fixed;bottom:calc(env(safe-area-inset-bottom)+16px);left:50%;transform:translateX(-50%);z-index:200;font-family:-apple-system,sans-serif;pointer-events:none;white-space:nowrap;text-align:center;';
     document.body.appendChild(el);
   }
-  el.textContent='累積獲得金額：'+formatYenJP(total)+'円';
+  el.innerHTML=`<div style="font-size:10px;font-weight:600;color:#5A9AAD;letter-spacing:.4px;margin-bottom:2px">💰 累積獲得金額</div><div style="font-size:17px;font-weight:800;color:#16a34a;background:rgba(255,255,255,.90);padding:6px 18px;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.10);backdrop-filter:blur(10px)">${formatYenJP(total)}円</div>`;
 }
 
 function _checkHit(hookY){
