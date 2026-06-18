@@ -53,9 +53,9 @@ def draw_icon(size):
         wy = wave_y_at_x.get(x, wave_y_base)
         for y in range(int(wy), size):
             t = (y - wy) / max(1, size - wy)
-            rc = int(round(90  * (1-t) + 6   * t))
-            gc = int(round(205 * (1-t) + 138 * t))
-            bc = int(round(222 * (1-t) + 160 * t))
+            rc = int(round(180 * (1-t) + 120 * t))
+            gc = int(round(228 * (1-t) + 195 * t))
+            bc = int(round(248 * (1-t) + 230 * t))
             img.putpixel((x, y), (rc, gc, bc, 255))
 
     img.putalpha(mask)
@@ -76,16 +76,16 @@ def draw_icon(size):
     wave_layer.putalpha(new_a)
     img = Image.alpha_composite(img, wave_layer)
 
-    # ── チェックマーク（アイコン中央、濃いグレー、丸み付き）
+    # ── チェックマーク（アイコン中央、薄いグレー、丸み付き）
     draw = ImageDraw.Draw(img)
-    # 重心を(50%, 60%)に配置
+    # 24%上げて上下左右中央バランス（重心 ≈ 50%, 36%）
     pts = [
-        (size * 0.210, size * 0.590),
-        (size * 0.415, size * 0.778),
-        (size * 0.790, size * 0.402),
+        (size * 0.210, size * 0.350),
+        (size * 0.415, size * 0.538),
+        (size * 0.790, size * 0.172),
     ]
     lw = max(int(size * 0.090), 4)
-    col = (65, 65, 65, 255)
+    col = (195, 195, 195, 255)
     # 丸みを出すため各頂点に円を描画
     r_cap = lw // 2
     draw.line(pts, fill=col, width=lw)
