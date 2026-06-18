@@ -80,9 +80,9 @@ def draw_icon(size):
     draw = ImageDraw.Draw(img)
     # スタイリッシュな形（左腕短め・右腕長め）、30%下げ
     pts = [
-        (size * 0.185, size * 0.780),
-        (size * 0.380, size * 0.960),
-        (size * 0.820, size * 0.600),
+        (size * 0.185, size * 0.540),
+        (size * 0.380, size * 0.720),
+        (size * 0.820, size * 0.360),
     ]
     lw = max(int(size * 0.112), 4)
     col = (124, 124, 124, 255)
