@@ -160,18 +160,19 @@ body{
 /* ── DATE NAV ── */
 .date-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;}
 .date-nav-btn{
-  width:32px;height:32px;border-radius:50%;border:none;
-  background:rgba(255,255,255,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  color:var(--tx2);font-size:16px;cursor:pointer;flex-shrink:0;
+  width:32px;height:32px;border-radius:50%;
+  border:1.5px solid var(--bd2);
+  background:rgba(255,255,255,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  color:var(--ac2);font-size:16px;cursor:pointer;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:var(--shadow);transition:transform .15s;
+  box-shadow:0 2px 8px rgba(10,143,163,.10);transition:transform .15s;
 }
 .date-nav-btn:active{transform:scale(.9);}
 .date-nav-center{flex:1;text-align:center;}
-.date-label{font-size:13px;color:var(--tx3);font-weight:400;}
+.date-label{font-size:22px;color:var(--tx);font-weight:700;letter-spacing:-.4px;display:block;}
 .date-badge{
-  display:inline-block;font-size:10px;font-weight:700;
-  padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle;
+  display:inline-block;font-size:11px;font-weight:600;
+  padding:2px 10px;border-radius:20px;margin-top:2px;vertical-align:middle;
 }
 .date-badge.today{background:var(--ac);color:#fff;}
 .date-badge.past{background:var(--s3);color:var(--ac2);}
@@ -182,7 +183,7 @@ body{
 
 /* ヘッダー */
 .hd{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;padding-top:4px;}
-.hd h1{font-size:28px;font-weight:700;color:var(--tx);letter-spacing:-.5px;line-height:1;}
+.hd h1{font-size:12px;font-weight:500;color:var(--tx3);letter-spacing:.2px;line-height:1;margin-bottom:6px;}
 .dl{font-size:13px;color:var(--tx3);margin-top:4px;font-weight:400;}
 
 /* ブロックカード */
@@ -269,13 +270,18 @@ body{
 
 /* 優先度バッジ */
 .bg{
-  font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;
-  display:inline-flex;align-items:center;margin-top:5px;letter-spacing:.1px;
+  font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;
+  display:inline-flex;align-items:center;gap:4px;margin-top:5px;letter-spacing:.2px;
 }
-.br{background:#FDECEA;color:#B03A2E;}
-.ba2{background:#FEF3E2;color:#8A5A00;}
-.bb{background:#E3F4F8;color:#0A6B80;}
-.bg2{background:var(--s2);color:var(--tx2);}
+.bg::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.br{background:rgba(220,53,53,.10);color:#B03A2E;border:1px solid rgba(220,53,53,.20);}
+.br::before{background:#DC3535;}
+.ba2{background:rgba(210,140,0,.10);color:#8A5A00;border:1px solid rgba(210,140,0,.20);}
+.ba2::before{background:#D48C00;}
+.bb{background:rgba(8,145,178,.10);color:#0A6B80;border:1px solid rgba(8,145,178,.20);}
+.bb::before{background:#0891B2;}
+.bg2{background:rgba(90,154,173,.10);color:var(--tx2);border:1px solid rgba(90,154,173,.20);}
+.bg2::before{background:var(--tx3);}
 
 /* プログレスバー */
 .pb{height:3px;background:rgba(159,214,221,.35);border-radius:4px;margin-top:7px;overflow:hidden;}
@@ -471,16 +477,17 @@ body{
   box-shadow:0 1px 12px rgba(10,143,163,.06);
 }
 .top-nav-btn{
-  padding:7px 22px;border-radius:50px;border:none;
-  background:transparent;color:var(--tx2);
+  padding:6px 20px;border-radius:50px;
+  border:1.5px solid transparent;
+  background:transparent;color:var(--tx3);
   font-size:13px;font-weight:600;letter-spacing:-.1px;
   cursor:pointer;transition:all .2s cubic-bezier(.22,.68,0,1.2);
   font-family:-apple-system,'Helvetica Neue',sans-serif;
 }
 .top-nav-btn.active{
-  background:rgba(255,255,255,.55);color:var(--ac2);
-  box-shadow:var(--g-shadow-sm);
-  border:1px solid rgba(255,255,255,.7);
+  background:rgba(255,255,255,.85);color:var(--ac2);
+  border:1.5px solid var(--bd2);
+  box-shadow:0 2px 10px rgba(10,143,163,.10);
   transform:scale(1.04);
 }
 .top-nav-music{
@@ -1249,7 +1256,7 @@ function rb(){
         const csv=cv?`<svg style="position:absolute;inset:0;pointer-events:none;z-index:2;" width="100%" height="100%" viewBox="0 0 380 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">${clines(iv)}</svg>`:'';
         return`<div class="tr ${cv?'c'+cv:''}" data-block="${b.k}" data-id="${t.id}" onclick="tap('${b.k}',${t.id})">${csv}<div class="tm"><div class="dh" onclick="event.stopPropagation()"><i class="ti ti-grip-vertical" style="font-size:15px;"></i></div><div class="ck ${t.done?'done':''}" onclick="event.stopPropagation();tgT('${b.k}',${t.id})"></div><div class="tbody" onclick="event.stopPropagation();tap('${b.k}',${t.id})"><span class="tn ${(t.done||(hs&&t.subs.every(s=>s.done)))?'done':''}">${t.text}</span><br><span class="bg ${Q[t.q].b}">${Q[t.q].l}</span>${ph}${hint}</div><div style="display:flex;align-items:center;gap:4px;flex-shrink:0;z-index:3;position:relative;"><i class="ti ti-${t.open?'chevron-up':'chevron-down'}" style="font-size:14px;color:var(--tx3);cursor:pointer;padding:5px;" onclick="event.stopPropagation();tgO('${b.k}',${t.id})"></i><i class="ti ti-trash" style="font-size:14px;color:var(--tx3);cursor:pointer;padding:5px;" onclick="event.stopPropagation();dlT('${b.k}',${t.id})"></i></div></div>${sp2}</div>`;
       }).join('');
-      body=`<div class="tbb"><div id="list-${b.k}">${rows}</div><div class="ba"><input type="text" id="inp-${b.k}" placeholder="${b.n}のタスクを追加..."/><select id="sel-${b.k}"><option value="0">🔴 重要・急ぎ</option><option value="1">🟡 重要・後で</option><option value="2">🔵 急ぎ・軽め</option><option value="3">⚪ いつか</option></select><button class="mb" onclick="addT('${b.k}')"><i class="ti ti-plus"></i></button></div></div>`;
+      body=`<div class="tbb"><div id="list-${b.k}">${rows}</div><div class="ba"><input type="text" id="inp-${b.k}" placeholder="${b.n}のタスクを追加..."/><select id="sel-${b.k}"><option value="0">重要・急ぎ</option><option value="1">重要・後で</option><option value="2">急ぎ・軽め</option><option value="3">いつか</option></select><button class="mb" onclick="addT('${b.k}')"><i class="ti ti-plus"></i></button></div></div>`;
     }
     div.innerHTML=`<div class="tbh" onclick="tgCol('${b.k}')"><div class="tbt"><span class="tbi">${b.i}</span><div><span class="tbn">${b.n}</span><span class="tbr">${b.t}</span></div></div><div style="display:flex;align-items:center;gap:8px;"><span class="tbb2">${dc}/${bt.length}</span><i class="ti ti-${col[b.k]?'chevron-right':'chevron-down'}" style="font-size:14px;color:var(--tx3);"></i></div></div>${body}`;
     bc.appendChild(div);
@@ -1276,6 +1283,7 @@ function toggleMindset(){msOpen=!msOpen;document.getElementById('ms-cards').styl
 function autoResize(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
 
 const Q=[{l:'重要・急ぎ',b:'br',c:'#FDECEA'},{l:'重要・後で',b:'ba2',c:'#FEF3E2'},{l:'急ぎ・軽め',b:'bb',c:'#E3F4F8'},{l:'いつか',b:'bg2',c:'#EDF8FA'}];
+// Q labels shown via CSS dot — no emoji needed
 const BL=[{k:'am',i:'🌅',n:'午前',t:'〜12:00'},{k:'pm',i:'☀️',n:'午後',t:'12:00〜18:00'},{k:'night',i:'🌙',n:'夜',t:'18:00〜'}];
 
 function drag(bk){
