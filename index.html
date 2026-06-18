@@ -22,8 +22,8 @@
   --card-bg:rgba(255,255,255,.22);
   --g-bg:rgba(255,255,255,.22);
   --g-bg2:rgba(255,255,255,.13);
-  --g-blur:blur(28px) saturate(200%);
-  --g-blur2:blur(18px) saturate(160%);
+  --g-blur:blur(24px);
+  --g-blur2:blur(16px);
   --g-border:1px solid rgba(255,255,255,.52);
   --g-shine:inset 0 1px 0 rgba(255,255,255,.72);
   --g-shadow:0 8px 32px rgba(0,40,60,.10),inset 0 1px 0 rgba(255,255,255,.72);
@@ -136,11 +136,11 @@ body{
 .mindset-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;width:100%;}
 .mindset-card{
   display:flex;align-items:flex-start;gap:8px;
-  background:rgba(255,255,255,.60);
+  background:rgba(255,255,255,.78);
   border:1px solid rgba(255,255,255,.80);
   border-radius:var(--radius-sm);padding:10px 11px;
   box-shadow:0 2px 12px rgba(10,143,163,.07),inset 0 1px 0 rgba(255,255,255,.90);
-  backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);
+  backdrop-filter:blur(20px) saturate(100%);-webkit-backdrop-filter:blur(20px) saturate(100%);
   min-width:0;overflow:hidden;
 }
 .mindset-num{
@@ -189,9 +189,9 @@ body{
 /* ブロックカード */
 .tb{
   border-radius:var(--radius);border:1px solid rgba(255,255,255,.80);margin-bottom:12px;
-  background:rgba(255,255,255,.60);
+  background:rgba(255,255,255,.78);
   box-shadow:0 4px 24px rgba(10,143,163,.08),inset 0 1px 0 rgba(255,255,255,.90);
-  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+  backdrop-filter:blur(24px) saturate(100%);-webkit-backdrop-filter:blur(24px) saturate(100%);
   overflow:hidden;
 }
 .tbh{
@@ -347,7 +347,7 @@ body{
   display:flex;flex-direction:column;align-items:center;
   transition:background .15s;position:relative;
   border:1px solid rgba(255,255,255,.80);
-  backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);
+  backdrop-filter:blur(20px) saturate(100%);-webkit-backdrop-filter:blur(20px) saturate(100%);
   box-shadow:0 2px 8px rgba(10,143,163,.06),inset 0 1px 0 rgba(255,255,255,.90);
 }
 .cal-cell:active{background:rgba(255,255,255,.80);}
@@ -369,7 +369,7 @@ body{
 
 /* ── MONTHLY GOALS ── */
 .mg-section{
-  background:rgba(255,255,255,.60);
+  background:rgba(255,255,255,.78);
   border-radius:var(--radius);
   border:1px solid rgba(255,255,255,.80);
   box-shadow:0 4px 24px rgba(10,143,163,.08),inset 0 1px 0 rgba(255,255,255,.90);
@@ -432,11 +432,11 @@ body{
 .day-ev-label{font-size:11px;font-weight:600;color:var(--tx3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px;}
 .day-ev-item{
   display:flex;align-items:center;gap:10px;
-  padding:12px 14px;background:rgba(255,255,255,.60);
+  padding:12px 14px;background:rgba(255,255,255,.78);
   border-radius:var(--radius-sm);margin-bottom:8px;
   box-shadow:0 2px 12px rgba(10,143,163,.07),inset 0 1px 0 rgba(255,255,255,.90);
   border:1px solid rgba(255,255,255,.80);
-  backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);
+  backdrop-filter:blur(20px) saturate(100%);-webkit-backdrop-filter:blur(20px) saturate(100%);
 }
 .day-ev-time{font-size:12px;color:var(--tx3);font-weight:500;flex-shrink:0;}
 .day-ev-text-el{flex:1;font-size:14px;color:var(--tx);font-weight:500;}
@@ -470,7 +470,7 @@ body{
   position:fixed;top:0;left:0;right:0;z-index:55;
   padding-top:env(safe-area-inset-top);
   background:rgba(238,249,251,.75);
-  backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);
+  backdrop-filter:blur(28px) saturate(100%);-webkit-backdrop-filter:blur(28px) saturate(100%);
   border-bottom:1px solid rgba(255,255,255,.70);
   display:flex;justify-content:center;align-items:center;gap:6px;
   padding-bottom:8px;
