@@ -78,14 +78,14 @@ def draw_icon(size):
 
     # ── チェックマーク（アイコン中央、薄いグレー、丸み付き）
     draw = ImageDraw.Draw(img)
-    # 重心を(50%, 50%)に合わせて上下左右中央
+    # スタイリッシュな形（左腕短め・右腕長め）、30%下げ
     pts = [
-        (size * 0.210, size * 0.497),
-        (size * 0.415, size * 0.685),
-        (size * 0.790, size * 0.319),
+        (size * 0.185, size * 0.780),
+        (size * 0.380, size * 0.960),
+        (size * 0.820, size * 0.600),
     ]
     lw = max(int(size * 0.112), 4)
-    col = (155, 155, 155, 255)
+    col = (124, 124, 124, 255)
     # 丸みを出すため各頂点に円を描画
     r_cap = lw // 2
     draw.line(pts, fill=col, width=lw)
