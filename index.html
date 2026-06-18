@@ -383,10 +383,20 @@ body{
 .mg-item{margin-bottom:6px;}
 .mg-item:last-child{margin-bottom:0;}
 .mg-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.70);border-radius:var(--radius-xs);border:1px solid rgba(255,255,255,.45);}
-.mg-num{font-size:10px;font-weight:700;color:#fff;background:var(--ac);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mg-num{font-size:10px;font-weight:700;color:#fff;background:var(--ac);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;border:none;transition:background .2s,transform .15s;-webkit-tap-highlight-color:transparent;}
+.mg-num:active{transform:scale(.88);}
+.mg-num.checked{background:#22c55e;font-size:12px;}
+.mg-item.done .mg-input{text-decoration:line-through;color:var(--tx3);}
 .mg-input{flex:1;font-size:13px;border:none;background:transparent;color:var(--tx);outline:none;font-family:-apple-system,'Helvetica Neue',sans-serif;}
 .mg-input::placeholder{color:var(--tx3);}
 .mg-expand-btn{font-size:11px;color:var(--tx3);cursor:pointer;padding:2px 4px;flex-shrink:0;background:none;border:none;}
+@keyframes money-fly{
+  0%{opacity:0;transform:translate(0,0) rotate(-15deg) scale(.5);}
+  12%{opacity:1;transform:translate(calc(var(--dx)*.12),calc(var(--dy)*.12)) rotate(8deg) scale(1.15);}
+  80%{opacity:1;}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(20deg) scale(.7);}
+}
+.money-emoji{position:fixed;font-size:30px;pointer-events:none;z-index:9999;animation:money-fly var(--dur) ease-out forwards;}
 .mg-subs{padding:4px 0 2px 36px;}
 .mg-sub-row{display:flex;align-items:center;gap:6px;padding:4px 0;}
 .mg-sub-dot{width:6px;height:6px;border-radius:50%;background:var(--ac);flex-shrink:0;}
@@ -537,7 +547,7 @@ body{
       <div class="mg-body" id="mg-body">
         <div class="mg-item" id="mg-item-0">
           <div class="mg-row">
-            <div class="mg-num">1</div>
+            <button class="mg-num" id="mg-check-0" onclick="toggleMGDone(0)">1</button>
             <input class="mg-input" placeholder="目標を入力…" oninput="saveMG()" id="mg-text-0">
             <button class="mg-expand-btn" onclick="toggleMGSub(0)" id="mg-exp-0">＋ 手段</button>
           </div>
@@ -551,7 +561,7 @@ body{
         </div>
         <div class="mg-item" id="mg-item-1">
           <div class="mg-row">
-            <div class="mg-num">2</div>
+            <button class="mg-num" id="mg-check-1" onclick="toggleMGDone(1)">2</button>
             <input class="mg-input" placeholder="目標を入力…" oninput="saveMG()" id="mg-text-1">
             <button class="mg-expand-btn" onclick="toggleMGSub(1)" id="mg-exp-1">＋ 手段</button>
           </div>
@@ -565,7 +575,7 @@ body{
         </div>
         <div class="mg-item" id="mg-item-2">
           <div class="mg-row">
-            <div class="mg-num">3</div>
+            <button class="mg-num" id="mg-check-2" onclick="toggleMGDone(2)">3</button>
             <input class="mg-input" placeholder="目標を入力…" oninput="saveMG()" id="mg-text-2">
             <button class="mg-expand-btn" onclick="toggleMGSub(2)" id="mg-exp-2">＋ 手段</button>
           </div>
@@ -1364,7 +1374,7 @@ function goToSchedule(){
 // ── Monthly Goals ─────────────────────────────
 let mgOpen=true;
 function mgKey(){return'mgoals_'+calYear+'-'+(calMonth+1);}
-function loadMG(){return JSON.parse(localStorage.getItem(mgKey())||'[{"text":"","subs":[]},{"text":"","subs":[]},{"text":"","subs":[]}]');}
+function loadMG(){return JSON.parse(localStorage.getItem(mgKey())||'[{"text":"","subs":[],"done":false},{"text":"","subs":[],"done":false},{"text":"","subs":[],"done":false}]');}
 function saveMG(){
   const data=loadMG();
   [0,1,2].forEach(i=>{
@@ -1372,6 +1382,40 @@ function saveMG(){
     if(inp)data[i].text=inp.value;
   });
   localStorage.setItem(mgKey(),JSON.stringify(data));
+}
+function applyMGDone(data){
+  [0,1,2].forEach(i=>{
+    const btn=document.getElementById('mg-check-'+i);
+    const item=document.getElementById('mg-item-'+i);
+    if(btn){btn.textContent=data[i].done?'✓':(i+1);btn.classList.toggle('checked',!!data[i].done);}
+    if(item)item.classList.toggle('done',!!data[i].done);
+  });
+}
+function toggleMGDone(i){
+  const data=loadMG();
+  data[i].done=!data[i].done;
+  localStorage.setItem(mgKey(),JSON.stringify(data));
+  applyMGDone(data);
+  if(data.filter(d=>d.done).length>=3)launchMoney();
+}
+function launchMoney(){
+  for(let k=0;k<18;k++){
+    setTimeout(()=>{
+      const el=document.createElement('span');
+      el.className='money-emoji';
+      el.textContent='💸';
+      const sx=Math.random()*window.innerWidth*.30;
+      const sy=window.innerHeight*(.68+Math.random()*.28);
+      const dist=window.innerHeight*(.9+Math.random()*.5);
+      const angle=(30+(Math.random()*16-8))*Math.PI/180;
+      const dx=dist*Math.cos(angle);
+      const dy=-dist*Math.sin(angle);
+      const dur=(.85+Math.random()*.75).toFixed(2);
+      el.style.cssText=`left:${sx}px;top:${sy}px;--dx:${dx}px;--dy:${dy}px;--dur:${dur}s;`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),2200);
+    },k*70);
+  }
 }
 function renderMG(){
   const data=loadMG();
@@ -1382,6 +1426,7 @@ function renderMG(){
     const si=document.getElementById('mg-sub-inp-'+i);
     if(si)si.addEventListener('keydown',e=>{if(e.key==='Enter')addMGSub(i);});
   });
+  applyMGDone(data);
 }
 function renderMGSubs(i,subs){
   const list=document.getElementById('mg-sub-list-'+i);
