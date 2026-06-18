@@ -136,7 +136,7 @@ body{
 .mindset-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;width:100%;}
 .mindset-card{
   display:flex;align-items:flex-start;gap:8px;
-  background:rgba(255,255,255,.78);
+  background:rgba(255,255,255,.88);
   border:1px solid rgba(255,255,255,.80);
   border-radius:var(--radius-sm);padding:10px 11px;
   box-shadow:0 2px 12px rgba(10,143,163,.07),inset 0 1px 0 rgba(255,255,255,.90);
@@ -189,7 +189,7 @@ body{
 /* ブロックカード */
 .tb{
   border-radius:var(--radius);border:1px solid rgba(255,255,255,.80);margin-bottom:12px;
-  background:rgba(255,255,255,.78);
+  background:rgba(255,255,255,.88);
   box-shadow:0 4px 24px rgba(10,143,163,.08),inset 0 1px 0 rgba(255,255,255,.90);
   backdrop-filter:blur(24px) saturate(100%);-webkit-backdrop-filter:blur(24px) saturate(100%);
   overflow:hidden;
@@ -343,7 +343,7 @@ body{
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px 3px;grid-auto-rows:clamp(48px,9.5vw,64px);}
 .cal-cell{
   border-radius:12px;padding:5px 3px 4px;
-  background:rgba(255,255,255,.58);cursor:pointer;
+  background:rgba(255,255,255,.78);cursor:pointer;
   display:flex;flex-direction:column;align-items:center;
   transition:background .15s;position:relative;
   border:1px solid rgba(255,255,255,.80);
@@ -369,7 +369,7 @@ body{
 
 /* ── MONTHLY GOALS ── */
 .mg-section{
-  background:rgba(255,255,255,.78);
+  background:rgba(255,255,255,.88);
   border-radius:var(--radius);
   border:1px solid rgba(255,255,255,.80);
   box-shadow:0 4px 24px rgba(10,143,163,.08),inset 0 1px 0 rgba(255,255,255,.90);
@@ -386,7 +386,7 @@ body{
 .mg-body{padding:8px 10px 10px;}
 .mg-item{margin-bottom:6px;}
 .mg-item:last-child{margin-bottom:0;}
-.mg-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.22);border-radius:var(--radius-xs);border:1px solid rgba(255,255,255,.45);}
+.mg-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.70);border-radius:var(--radius-xs);border:1px solid rgba(255,255,255,.45);}
 .mg-num{font-size:10px;font-weight:700;color:#fff;background:var(--ac);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .mg-input{flex:1;font-size:13px;border:none;background:transparent;color:var(--tx);outline:none;font-family:-apple-system,'Helvetica Neue',sans-serif;}
 .mg-input::placeholder{color:var(--tx3);}
@@ -432,7 +432,7 @@ body{
 .day-ev-label{font-size:11px;font-weight:600;color:var(--tx3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px;}
 .day-ev-item{
   display:flex;align-items:center;gap:10px;
-  padding:12px 14px;background:rgba(255,255,255,.78);
+  padding:12px 14px;background:rgba(255,255,255,.88);
   border-radius:var(--radius-sm);margin-bottom:8px;
   box-shadow:0 2px 12px rgba(10,143,163,.07),inset 0 1px 0 rgba(255,255,255,.90);
   border:1px solid rgba(255,255,255,.80);
@@ -469,12 +469,12 @@ body{
 #top-nav{
   position:fixed;top:0;left:0;right:0;z-index:55;
   padding-top:env(safe-area-inset-top);
-  background:rgba(238,249,251,.75);
-  backdrop-filter:blur(28px) saturate(100%);-webkit-backdrop-filter:blur(28px) saturate(100%);
-  border-bottom:1px solid rgba(255,255,255,.70);
+  background:rgba(184,234,242,.72);
+  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+  border-bottom:1px solid rgba(255,255,255,.65);
   display:flex;justify-content:center;align-items:center;gap:6px;
   padding-bottom:8px;
-  box-shadow:0 1px 12px rgba(10,143,163,.06);
+  box-shadow:0 2px 16px rgba(10,143,163,.10),inset 0 -1px 0 rgba(255,255,255,.50);
 }
 .top-nav-btn{
   padding:6px 20px;border-radius:50px;
