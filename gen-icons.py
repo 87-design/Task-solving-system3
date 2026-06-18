@@ -76,19 +76,21 @@ def draw_icon(size):
     wave_layer.putalpha(new_a)
     img = Image.alpha_composite(img, wave_layer)
 
-    # ── チェックマーク（ティール水中エリア: 波の下）
+    # ── チェックマーク（アイコン中央、濃いグレー、丸み付き）
     draw = ImageDraw.Draw(img)
-    # 波のベースが38%なので、チェックは45〜80%に配置
+    # 重心を(50%, 60%)に配置
     pts = [
-        (size * 0.200, size * 0.600),
-        (size * 0.395, size * 0.775),
-        (size * 0.800, size * 0.420),
+        (size * 0.210, size * 0.590),
+        (size * 0.415, size * 0.778),
+        (size * 0.790, size * 0.402),
     ]
-    lw = max(int(size * 0.088), 4)
-    shd = [(x + size*.016, y + size*.020) for x, y in pts]
-    draw.line(shd, fill=(0, 80, 100, 60), width=lw+2)
-    draw.line(pts, fill=(255, 255, 255, 70), width=lw+8)
-    draw.line(pts, fill=(255, 255, 255, 255), width=lw)
+    lw = max(int(size * 0.090), 4)
+    col = (65, 65, 65, 255)
+    # 丸みを出すため各頂点に円を描画
+    r_cap = lw // 2
+    draw.line(pts, fill=col, width=lw)
+    for px, py in pts:
+        draw.ellipse([px-r_cap, py-r_cap, px+r_cap, py+r_cap], fill=col)
 
     img.putalpha(mask)
     return img
