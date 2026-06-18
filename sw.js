@@ -1,4 +1,4 @@
-const CACHE = 'today-tasks-v1';
+const CACHE = 'today-tasks-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -20,16 +20,15 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  const req = e.request;
+  // ネットワーク優先（network-first）: 常に最新を取りに行き、オフライン時のみキャッシュにフォールバック
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      const net = fetch(e.request).then(res => {
-        if (res.ok && e.request.url.startsWith(self.location.origin)) {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return res;
-      }).catch(() => cached);
-      return cached || net;
-    })
+    fetch(req).then(res => {
+      if (res.ok && req.url.startsWith(self.location.origin)) {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(req, clone));
+      }
+      return res;
+    }).catch(() => caches.match(req))
   );
 });
